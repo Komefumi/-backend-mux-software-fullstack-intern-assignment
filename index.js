@@ -7,6 +7,10 @@ import { addAsync } from '@awaitjs/express';
 
 import MainController from './controllers/index';
 
+import Store from './models/Store';
+
+import { ELECTRONICS, TOYS } from './constants';
+
 const runONDEATHFull = runONDEATH({ uncaughtException: true });
 const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI);
@@ -29,9 +33,28 @@ process.on('SIGINT', () => {
   process.exit(1);
 });
 
-server.listen(PORT, () => {
-  console.log(`Listening on PORT ${PORT}`);
-});
+Promise.all([
+  Store.findOneAndUpdate(
+    { storeName: TOYS },
+    { $setOnInsert: { storeName: TOYS, additionalFields: {} } },
+    { upsert: true },
+  ),
+  Store.findOneAndUpdate(
+    { storeName: ELECTRONICS },
+    { $setOnInsert: { storeName: ELECTRONICS, additionalFields: {} } },
+    { upsert: true },
+  ),
+])
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Listening on PORT ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error({ err });
+    mongoose.disconnect();
+    process.exit(1);
+  });
 
 runONDEATHFull(() => {
   // db.close();
