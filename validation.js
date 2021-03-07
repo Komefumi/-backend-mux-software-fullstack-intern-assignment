@@ -33,15 +33,15 @@ const storeCheck = (req, res) => {
 };
 
 const stringExists = (input) => typeof input === 'string' && input.length > 0;
-const userFieldValidators = (validators = {
+const userFieldValidators = {
   firstName: stringExists,
   lastName: stringExists,
   email: validateEmail,
   birthday: (input) => returnTrueIfDate(input),
   store: checkIfValidStore,
-});
+};
 
-const userFields = Object.keys(validators);
+const userFields = Object.keys(userFieldValidators);
 
 const newUserDataValidation = async (newUserData) => {
   const dataForFields = createObjectFromFields(newUserData, userFields);
