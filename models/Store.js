@@ -3,7 +3,7 @@ import { STORES } from '../constants';
 
 const StoreSchema = new mongoose.Schema(
   {
-    accountName: {
+    storeName: {
       type: String,
       enum: STORES,
       unique: true,
