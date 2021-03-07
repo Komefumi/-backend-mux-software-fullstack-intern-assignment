@@ -38,7 +38,7 @@ const userFieldValidators = {
   firstName: stringExists,
   lastName: stringExists,
   email: validateEmail,
-  birthday: (input) => returnTrueIfDate(input),
+  birthday: (input) => Date.parse(input),
   phone: (input) => validatePhoneNumber(input).length > 0,
   store: checkIfValidStore,
 };
@@ -49,6 +49,7 @@ const newUserDataValidation = async (newUserData) => {
   const dataForFields = createObjectFromFields(newUserData, userFields);
   const atleastOneIsInvalid = userFields.some((currentKey) => {
     const result = userFieldValidators[currentKey](dataForFields[currentKey]);
+    console.log(`validation for field ${currentKey} : ${result}`);
     return !result;
   });
 
@@ -70,8 +71,7 @@ const newUserDataValidation = async (newUserData) => {
     });
   }
 
-  const newUserInstance = new User(dataForFields);
-  return newUserInstance;
+  return dataForFields;
 };
 
 export { getSkipAndLimit, storeCheck, userFields, newUserDataValidation };
