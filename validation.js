@@ -1,5 +1,6 @@
 import { validate as validateEmail } from 'email-validator';
 import { isDate as returnTrueIfDate } from 'validator';
+import validatePhoneNumber from 'phone';
 
 import User from './models/User';
 import Store from './models/Store';
@@ -38,6 +39,7 @@ const userFieldValidators = {
   lastName: stringExists,
   email: validateEmail,
   birthday: (input) => returnTrueIfDate(input),
+  phone: (input) => validatePhoneNumber(input).length > 0,
   store: checkIfValidStore,
 };
 

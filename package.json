@@ -28,6 +28,7 @@
     "mongodb": "^3.6.4",
     "mongoose": "^5.11.19",
     "nodemon": "^2.0.7",
+    "phone": "^2.4.21",
     "validator": "^13.5.2"
   },
   "devDependencies": {
