@@ -1,12 +1,33 @@
 import mongoose from 'mongoose';
+import { STORES } from '../constants';
 
 const UserSchema = new mongoose.Schema(
   {
-    firstName: String,
-    lastName: String,
-    email: String,
-    phone: Number,
-    birthday: Date,
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: Number,
+      required: true,
+    },
+    birthday: {
+      type: Date,
+      required: true,
+    },
+    store: {
+      type: String,
+      enum: STORES,
+      required: true,
+    },
   },
   { timestamps: true },
 );
