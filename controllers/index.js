@@ -1,30 +1,14 @@
-import { STORES } from '../constants';
 import UserModel from '../models/User';
+import {
+  getSkipAndLimit,
+  storeCheck,
+  newUserDataValidation,
+  userFields,
+} from '../validation';
+
+import { createObjectFromFields } from '../utils';
 
 const MainController = {};
-
-const checkIfValidStore = (store) => {
-  const chosenStore = String(store).toLowerCase();
-  if (STORES.indexOf(chosenStore) === -1) return false;
-  else return chosenStore;
-};
-
-const getStore = ({ query: { store } }) => store;
-// const stdErr = (res) => res.status(400).json({ error: true });
-const getSkipAndLimit = (req) => ({
-  limit: req.query.limit || 10,
-  skip: req.query.skip || 0,
-});
-
-const storeCheck = (req, res) => {
-  const store = getStore(req);
-  const chosenStore = checkIfValidStore(store);
-  if (!chosenStore) {
-    res.status(400).json({ message: 'Invalid store selection' });
-    return false;
-  }
-  return chosenStore;
-};
 
 MainController.listCustomers = async (req, res) => {
   const { limit, skip } = getSkipAndLimit(req);
@@ -45,9 +29,16 @@ MainController.addCustomer = (req, res) => {
   const chosenStore = storeCheck(req, res);
   if (!chosenStore) {
     return;
-  } else {
-    return res.json({ added: true });
   }
+  const payloadData = { ...req.body, store: chosenStore };
+  const newUserInstance = newUserDataValidation(payloadData);
+  const savedInstance = newUserInstance.save();
+  return res.json({
+    user: createObjectFromFields(savedInstance, [
+      ...userFields,
+      'additionalFields',
+    ]),
+  });
 };
 
 MainController.listFields = (req, res) => {
