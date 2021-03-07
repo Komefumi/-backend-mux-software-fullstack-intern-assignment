@@ -20,8 +20,10 @@ const server = createServer(app);
 app.use(bodyParser.json());
 app.getAsync('/customers', MainController.listCustomers);
 app.postAsync('/customers', MainController.addCustomer);
-app.getAsync('/fields', MainController.listCustomers);
-app.postAsync('/fields', MainController.addCustomer);
+app.deleteAsync('/customers', MainController.deleteCustomer);
+app.getAsync('/fields', MainController.listFields);
+app.postAsync('/fields', MainController.addField);
+app.deleteAsync('/fields', MainController.deleteField);
 
 app.use((error, req, res, next) => {
   res.status(400).json({ Errormessage: error.message });
