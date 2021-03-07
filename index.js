@@ -1,10 +1,19 @@
-const express = require('express')
-const path = require('path')
-const PORT = process.env.PORT || 5000
+import express from 'express';
+import bodyParser from 'body-parser';
+import runONDEATH from 'death';
+import mongoose from 'mongoose';
 
-express()
-  .use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+const runONDEATHFull = runONDEATH({ uncaughtException: true });
+const PORT = process.env.PORT || 5000;
+const db = mongoose.connect(process.env.MONGO_URI, { useMongoClient: true });
+const app = express();
+
+app.use(bodyParser.json());
+
+app.listen(PORT, () => {
+  console.log(`Listening on ${PORT}`);
+});
+
+runONDEATHFull(() => {
+  db.close();
+});

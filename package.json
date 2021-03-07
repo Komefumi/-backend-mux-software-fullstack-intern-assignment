@@ -3,18 +3,27 @@
   "version": "0.3.0",
   "description": "A sample Node.js app using Express 4",
   "engines": {
-    "node": "14.x"
+    "node": "14.16.0"
   },
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "node test.js"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "death": "^1.1.0",
     "ejs": "^3.1.5",
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "express-validator": "^6.10.0",
+    "mongodb": "^3.6.4",
+    "mongoose": "^5.11.19"
   },
   "devDependencies": {
+    "eslint": "^7.21.0",
+    "eslint-config-google": "^0.14.0",
     "got": "^11.3.0",
     "tape": "^4.7.0"
   },
