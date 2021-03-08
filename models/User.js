@@ -29,6 +29,7 @@ const UserSchema = new mongoose.Schema(
       enum: STORES,
       required: true,
     },
+    additionalFields: {},
   },
   { timestamps: true },
 );
