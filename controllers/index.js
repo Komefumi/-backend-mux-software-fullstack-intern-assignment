@@ -28,7 +28,7 @@ MainController.listCustomers = async (req, res) => {
       { skip, limit },
     );
     return apiResponseHelper(res, 'Customers for store retrieved', {
-      store,
+      store: chosenStore,
       customers: results.map((user) => getUserData(user)),
     });
   }
@@ -86,15 +86,34 @@ MainController.deleteCustomer = async (req, res) => {
   });
 };
 
+MainController.customerCount = async (req, res) => {
+  const chosenStore = storeCheck(req, res);
+  if (!chosenStore) {
+    return;
+  } else {
+    const customerCountForStore = await UserModel.countDocuments({
+      store: chosenStore,
+    });
+    return apiResponseHelper(
+      res,
+      `Returning number of customers for ${chosenStore}`,
+      { chosenStore, customerCount: customerCountForStore },
+    );
+  }
+};
+
 MainController.listFields = async (req, res) => {
   const chosenStore = storeCheck(req, res);
   if (!chosenStore) {
     return;
   } else {
     const additionalFields = await getAdditionalFieldsOfStore(chosenStore);
-    const fieldDataArray = Object.keys(additionalFields).map((currentField) => [
-      { fieldName: currentField, fieldType: additionalFields[currentField] },
-    ]);
+    const fieldDataArray = Object.keys(additionalFields).map(
+      (currentField) => ({
+        fieldName: currentField,
+        fieldType: additionalFields[currentField],
+      }),
+    );
 
     return apiResponseHelper(
       res,
@@ -125,7 +144,7 @@ MainController.addField = async (req, res) => {
     }
     additionalFields[fieldName] = fieldType;
     const updatedStore = await StoreModel.findOneAndUpdate(
-      { storeName: store },
+      { storeName: chosenStore },
       { additionalFields },
       { new: true },
     );
@@ -151,7 +170,7 @@ MainController.deleteField = async (req, res) => {
     }
     const fieldType = additionalFields[fieldName];
     const updatedStore = await StoreModel.findOneAndUpdate(
-      { storeName: store },
+      { storeName: chosenStore },
       { additionalFields },
       { new: true },
     );

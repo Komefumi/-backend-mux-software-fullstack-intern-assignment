@@ -4,6 +4,7 @@ import runONDEATH from 'death';
 import mongoose from 'mongoose';
 import { createServer } from 'http';
 import { addAsync } from '@awaitjs/express';
+import cors from 'cors';
 
 import MainController from './controllers/index';
 
@@ -17,7 +18,10 @@ mongoose.connect(process.env.MONGO_URI);
 const app = addAsync(express());
 const server = createServer(app);
 
+app.use(cors());
+
 app.use(bodyParser.json());
+app.getAsync('/customers/count', MainController.customerCount);
 app.getAsync('/customers', MainController.listCustomers);
 app.postAsync('/customers', MainController.addCustomer);
 app.deleteAsync('/customers', MainController.deleteCustomer);

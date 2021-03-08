@@ -1,11 +1,12 @@
 import { validate as validateEmail } from 'email-validator';
 import validatePhoneNumber from 'phone';
+import { isNumeric } from 'validator';
 
 import Store from './models/Store';
 
 import { createObjectFromFields, apiResponseHelper } from './utils';
 
-import { STORES } from './constants';
+import { STORES, STRING_T, EMAIL_T, NUMBER_T, DATE_T } from './constants';
 
 const checkIfValidStore = (store) => {
   const chosenStore = String(store).toLowerCase();
@@ -23,6 +24,7 @@ const getSkipAndLimit = (req) => ({
 
 const storeCheck = (req, res) => {
   const store = getStore(req);
+  console.log({ store });
   const chosenStore = checkIfValidStore(store);
   if (!chosenStore) {
     apiResponseHelper(res, 'Invalid store selection', {}, 400, false);
@@ -39,6 +41,13 @@ const userFieldValidators = {
   birthday: (input) => Date.parse(input),
   phone: (input) => validatePhoneNumber(input).length > 0,
   store: checkIfValidStore,
+};
+
+const validatorsForAdditionals = {
+  [STRING_T]: stringExists,
+  [EMAIL_T]: validateEmail,
+  [NUMBER_T]: (input) => isNumeric(input + ''),
+  [DATE_T]: Date.parse,
 };
 
 const userFields = Object.keys(userFieldValidators);
@@ -60,10 +69,8 @@ const newUserDataValidation = async (newUserData) => {
     const fieldNames = Object.keys(additionalFields);
     dataForFields.additionalFields = {};
     fieldNames.forEach((field) => {
-      if (
-        newUserData[field] &&
-        typeof newUserData[field] === additionalFields[field]
-      ) {
+      const validatorForField = validatorsForAdditionals[field];
+      if (newUserData[field] && validatorForField(newUserData[field])) {
         dataForFields.additionalFields[field] = newUserData[field];
       }
     });
