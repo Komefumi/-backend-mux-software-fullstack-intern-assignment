@@ -40,7 +40,6 @@ MainController.addCustomer = async (req, res) => {
     return;
   }
   const payloadData = { ...req.body, store: chosenStore };
-  console.log({ payloadData });
   const newUserData = await newUserDataValidation(payloadData);
   if (!newUserData) {
     return apiResponseHelper(
@@ -70,6 +69,7 @@ MainController.deleteCustomer = async (req, res) => {
   }
   const deletedUser = await UserModel.findOneAndRemove({
     email: req.body.email,
+    store: chosenStore,
   });
   if (!deletedUser) {
     return apiResponseHelper(
@@ -148,8 +148,7 @@ MainController.addField = async (req, res) => {
       { additionalFields },
       { new: true },
     );
-    return apiResponseHelper(res, `Ran delete field operation`, {
-      fieldExisted: fieldType ? true : false,
+    return apiResponseHelper(res, `Ran add field operation`, {
       fieldName,
       fieldType,
       updatedStore,

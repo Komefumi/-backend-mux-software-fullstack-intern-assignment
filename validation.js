@@ -24,7 +24,6 @@ const getSkipAndLimit = (req) => ({
 
 const storeCheck = (req, res) => {
   const store = getStore(req);
-  console.log({ store });
   const chosenStore = checkIfValidStore(store);
   if (!chosenStore) {
     apiResponseHelper(res, 'Invalid store selection', {}, 400, false);
