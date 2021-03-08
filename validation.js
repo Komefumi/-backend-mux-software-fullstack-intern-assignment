@@ -1,11 +1,9 @@
 import { validate as validateEmail } from 'email-validator';
-import { isDate as returnTrueIfDate } from 'validator';
 import validatePhoneNumber from 'phone';
 
-import User from './models/User';
 import Store from './models/Store';
 
-import { createObjectFromFields } from './utils';
+import { createObjectFromFields, apiResponseHelper } from './utils';
 
 import { STORES } from './constants';
 
@@ -27,7 +25,7 @@ const storeCheck = (req, res) => {
   const store = getStore(req);
   const chosenStore = checkIfValidStore(store);
   if (!chosenStore) {
-    res.status(400).json({ message: 'Invalid store selection' });
+    apiResponseHelper(res, 'Invalid store selection', {}, 400, false);
     return false;
   }
   return chosenStore;

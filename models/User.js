@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 import { STORES } from '../constants';
 
 const UserSchema = new mongoose.Schema(

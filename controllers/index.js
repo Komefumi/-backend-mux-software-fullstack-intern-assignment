@@ -4,10 +4,9 @@ import {
   getSkipAndLimit,
   storeCheck,
   newUserDataValidation,
-  userFields,
 } from '../validation';
 
-import { createObjectFromFields } from '../utils';
+import { apiResponseHelper, getUserData } from '../utils';
 import { TYPES } from '../constants';
 
 const MainController = {};
@@ -28,7 +27,10 @@ MainController.listCustomers = async (req, res) => {
       {},
       { skip, limit },
     );
-    return res.json({ chosenStore, customers: results });
+    return apiResponseHelper(res, 'Customers for store retrieved', {
+      store,
+      customers: results.map((user) => getUserData(user)),
+    });
   }
 };
 
@@ -41,7 +43,13 @@ MainController.addCustomer = async (req, res) => {
   console.log({ payloadData });
   const newUserData = await newUserDataValidation(payloadData);
   if (!newUserData) {
-    return res.status(400).json({ error: true });
+    return apiResponseHelper(
+      res,
+      'There was an error in the provided data',
+      {},
+      400,
+      false,
+    );
   }
   const { email } = newUserData;
   const existingRecord = await UserModel.findOne({ email });
@@ -50,11 +58,8 @@ MainController.addCustomer = async (req, res) => {
     savedInstance = await UserModel.findOneAndUpdate({ email }, newUserData);
   }
   savedInstance = await new UserModel(newUserData).save();
-  return res.json({
-    user: createObjectFromFields(savedInstance, [
-      ...userFields,
-      'additionalFields',
-    ]),
+  return apiResponseHelper(res, 'Customer saved', {
+    user: getUserData(savedInstance),
   });
 };
 
@@ -67,14 +72,17 @@ MainController.deleteCustomer = async (req, res) => {
     email: req.body.email,
   });
   if (!deletedUser) {
-    return res.json({ userExisted: false });
+    return apiResponseHelper(
+      res,
+      'User not found',
+      { userExisted: false },
+      200,
+      false,
+    );
   }
-  return res.json({
+  return apiResponseHelper(res, 'User Successfully Deleted', {
     userExisted: true,
-    user: createObjectFromFields(savedInstance, [
-      ...userFields,
-      'additionalFields',
-    ]),
+    user: getUserData(deletedUser),
   });
 };
 
@@ -87,7 +95,13 @@ MainController.listFields = async (req, res) => {
     const fieldDataArray = Object.keys(additionalFields).map((currentField) => [
       { fieldName: currentField, fieldType: additionalFields[currentField] },
     ]);
-    return res.json({ fields: fieldDataArray });
+
+    return apiResponseHelper(
+      res,
+      `Additional fields for ${chosenStore} successfully retrieved`,
+      { fields: fieldDataArray },
+    );
+    // return res.json({ fields: fieldDataArray });
   }
 };
 
@@ -110,11 +124,17 @@ MainController.addField = async (req, res) => {
       res.json({ error: true });
     }
     additionalFields[fieldName] = fieldType;
-    await StoreModel.findOneAndUpdate(
+    const updatedStore = await StoreModel.findOneAndUpdate(
       { storeName: store },
       { additionalFields },
+      { new: true },
     );
-    return res.json({ added: true });
+    return apiResponseHelper(res, `Ran delete field operation`, {
+      fieldExisted: fieldType ? true : false,
+      fieldName,
+      fieldType,
+      updatedStore,
+    });
   }
 };
 
@@ -130,14 +150,16 @@ MainController.deleteField = async (req, res) => {
       res.json({ error: true });
     }
     const fieldType = additionalFields[fieldName];
-    await StoreModel.findOneAndUpdate(
+    const updatedStore = await StoreModel.findOneAndUpdate(
       { storeName: store },
       { additionalFields },
+      { new: true },
     );
-    return res.json({
+    return apiResponseHelper(res, `Ran delete field operation`, {
       fieldExisted: fieldType ? true : false,
       fieldName,
       fieldType,
+      updatedStore,
     });
   }
 };
