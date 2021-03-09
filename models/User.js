@@ -16,6 +16,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    address: {
+      type: String,
+      required: true,
+    },
     phone: {
       type: String,
       required: true,
@@ -29,7 +33,10 @@ const UserSchema = new mongoose.Schema(
       enum: STORES,
       required: true,
     },
-    additionalFields: {},
+    additionalFields: {
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+    },
   },
   { timestamps: true },
 );
