@@ -22,11 +22,9 @@ MainController.listCustomers = async (req, res) => {
   if (!chosenStore) {
     return;
   } else {
-    const results = await UserModel.find(
-      { store: chosenStore },
-      {},
-      { skip, limit },
-    );
+    const results = await UserModel.find({ store: chosenStore }, {})
+      .skip(skip)
+      .limit(limit);
     return apiResponseHelper(res, 'Customers for store retrieved', {
       store: chosenStore,
       customers: results.map((user) => getUserData(user)),
@@ -51,12 +49,11 @@ MainController.addCustomer = async (req, res) => {
     );
   }
   const { email } = newUserData;
-  const existingRecord = await UserModel.findOne({ email });
-  let savedInstance = null;
-  if (existingRecord) {
-    savedInstance = await UserModel.findOneAndUpdate({ email }, newUserData);
-  }
-  savedInstance = await new UserModel(newUserData).save();
+  const savedInstance = await UserModel.findOneAndUpdate(
+    { email },
+    { ...newUserData, additionalFields: { ...newUserData.additionalFields } },
+    { overwrite: true, upsert: true },
+  );
   return apiResponseHelper(res, 'Customer saved', {
     user: getUserData(savedInstance),
   });
@@ -126,7 +123,6 @@ MainController.listFields = async (req, res) => {
       `Additional fields for ${chosenStore} successfully retrieved`,
       { fields: fieldDataMapping },
     );
-    // return res.json({ fields: fieldDataArray });
   }
 };
 
@@ -174,6 +170,7 @@ MainController.deleteField = async (req, res) => {
       res.json({ error: true });
     }
     const fieldType = additionalFields[fieldName];
+    delete additionalFields[fieldName];
     const updatedStore = await StoreModel.findOneAndUpdate(
       { storeName: chosenStore },
       { additionalFields },
