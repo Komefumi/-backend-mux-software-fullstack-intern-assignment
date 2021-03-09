@@ -1,6 +1,6 @@
 import { validate as validateEmail } from 'email-validator';
 import validatePhoneNumber from 'phone';
-import { isNumeric } from 'validator';
+import { isNumeric, isDate } from 'validator';
 
 import Store from './models/Store';
 
@@ -33,12 +33,13 @@ const storeCheck = (req, res) => {
 };
 
 const stringExists = (input) => typeof input === 'string' && input.length > 0;
+const dateValidator = (input) => isDate(new Date(input));
 const userFieldValidators = {
   firstName: stringExists,
   lastName: stringExists,
   address: stringExists,
   email: validateEmail,
-  birthday: (input) => Date.parse(input),
+  birthday: dateValidator,
   phone: (input) => validatePhoneNumber(input).length > 0,
   store: checkIfValidStore,
 };
@@ -47,7 +48,7 @@ const validatorsForAdditionals = {
   [STRING_T]: stringExists,
   [EMAIL_T]: validateEmail,
   [NUMBER_T]: (input) => isNumeric(input + ''),
-  [DATE_T]: Date.parse,
+  [DATE_T]: dateValidator,
 };
 
 const userFields = Object.keys(userFieldValidators);
