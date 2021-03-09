@@ -18,8 +18,8 @@ const getStore = ({ query: { store } }) => store;
 
 // const stdErr = (res) => res.status(400).json({ error: true });
 const getSkipAndLimit = (req) => ({
-  limit: req.query.limit || 10,
-  skip: req.query.skip || 0,
+  limit: parseInt(req.query.limit) || 10,
+  skip: parseInt(req.query.skip) || 0,
 });
 
 const storeCheck = (req, res) => {
@@ -36,6 +36,7 @@ const stringExists = (input) => typeof input === 'string' && input.length > 0;
 const userFieldValidators = {
   firstName: stringExists,
   lastName: stringExists,
+  address: stringExists,
   email: validateEmail,
   birthday: (input) => Date.parse(input),
   phone: (input) => validatePhoneNumber(input).length > 0,
@@ -55,22 +56,26 @@ const newUserDataValidation = async (newUserData) => {
   const dataForFields = createObjectFromFields(newUserData, userFields);
   const atleastOneIsInvalid = userFields.some((currentKey) => {
     const result = userFieldValidators[currentKey](dataForFields[currentKey]);
-    console.log(`validation for field ${currentKey} : ${result}`);
     return !result;
   });
 
   if (atleastOneIsInvalid) return false;
 
   if (newUserData.additionalFields) {
-    const additionalFields = await Store.findOne({
+    const storeDocument = await Store.findOne({
       storeName: dataForFields.store,
     });
-    const fieldNames = Object.keys(additionalFields);
+    const fieldNames = Object.keys(storeDocument.additionalFields);
     dataForFields.additionalFields = {};
     fieldNames.forEach((field) => {
-      const validatorForField = validatorsForAdditionals[field];
-      if (newUserData[field] && validatorForField(newUserData[field])) {
-        dataForFields.additionalFields[field] = newUserData[field];
+      const validatorForField =
+        validatorsForAdditionals[storeDocument.additionalFields[field]];
+      if (
+        newUserData.additionalFields[field] &&
+        validatorForField(newUserData.additionalFields[field])
+      ) {
+        dataForFields.additionalFields[field] =
+          newUserData.additionalFields[field];
       }
     });
   }
