@@ -11,7 +11,12 @@ const apiResponseHelper = (
   return res.status(status).json({ message, data, success });
 };
 
-const getUserData = (userObject) =>
-  createObjectFromFields(userObject, [...userFields, 'additionalFields']);
+const getUserData = (userObject) => {
+  const cleaned = createObjectFromFields(userObject, [
+    ...userFields,
+    'additionalFields',
+  ]);
+  return cleaned;
+};
 
 export { createObjectFromFields, apiResponseHelper, getUserData };
