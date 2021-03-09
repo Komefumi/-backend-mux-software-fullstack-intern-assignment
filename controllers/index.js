@@ -108,17 +108,23 @@ MainController.listFields = async (req, res) => {
     return;
   } else {
     const additionalFields = await getAdditionalFieldsOfStore(chosenStore);
-    const fieldDataArray = Object.keys(additionalFields).map(
-      (currentField) => ({
-        fieldName: currentField,
-        fieldType: additionalFields[currentField],
-      }),
+    // const fieldDataArray = Object.keys(additionalFields).map(
+    //   (currentField) => ({
+    //     fieldName: currentField,
+    //     fieldType: additionalFields[currentField],
+    //   }),
+    // );
+    const fieldDataMapping = Object.keys(additionalFields).reduce(
+      (accum, fieldName) => {
+        return { ...accum, [fieldName]: additionalFields[fieldName] };
+      },
+      {},
     );
 
     return apiResponseHelper(
       res,
       `Additional fields for ${chosenStore} successfully retrieved`,
-      { fields: fieldDataArray },
+      { fields: fieldDataMapping },
     );
     // return res.json({ fields: fieldDataArray });
   }
